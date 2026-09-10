@@ -30,3 +30,9 @@ npm run dev
 ```
 
 Vite 开发服务器会把 `/api` 和 `/ws` 代理至 `localhost:8001`。生产环境可设置 `VITE_API_URL`。
+
+## 线上环境
+
+- 前端：https://frontend-iota-sage-58.vercel.app
+- 后端：https://microduck-training-api.onrender.com
+- GitHub：https://github.com/nefiag/MicroduckTraining
