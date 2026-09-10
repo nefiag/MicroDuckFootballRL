@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel,Field
 from .simulation import DuckKickEnv,Physics,QAgent,scripted_frames
 app=FastAPI(title="MicroduckTraining API",version="1.0.0")
-app.add_middleware(CORSMiddleware,allow_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS","http://localhost:5173").split(",")],allow_methods=["*"],allow_headers=["*"])
+app.add_middleware(CORSMiddleware,allow_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS","http://localhost:5173").split(",")],allow_origin_regex=r"https://(microduck-training|frontend)(-[a-z0-9-]+)?\.vercel\.app",allow_methods=["*"],allow_headers=["*"])
 class SimulationRequest(BaseModel):
     commands:list[dict]=Field(max_length=30);acceleration:float=Field(110,ge=20,le=300);friction:float=Field(.91,ge=.6,le=.999);kick_power:float=Field(230,ge=50,le=500)
 @app.get("/health")

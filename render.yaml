@@ -10,4 +10,4 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: ALLOWED_ORIGINS
-        value: https://frontend-iota-sage-58.vercel.app,http://localhost:5173
+        value: https://microduck-training.vercel.app,https://frontend-iota-sage-58.vercel.app,http://localhost:5173
