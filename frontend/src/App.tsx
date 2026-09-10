@@ -54,7 +54,8 @@ export function App() {
     [coachOpen, setCoachOpen] = useState(false),
     [mujocoFrame, setMujocoFrame] = useState<MujocoFrame | null>(null),
     [mujocoHistory, setMujocoHistory] = useState<number[]>([]),
-    [mujocoRunning, setMujocoRunning] = useState(false);
+    [mujocoRunning, setMujocoRunning] = useState(false),
+    [mujocoStatus, setMujocoStatus] = useState("等待启动");
   const ws = useRef<WebSocket | null>(null);
   const parse = () =>
     code.split("\n").map((line) => {
@@ -128,13 +129,79 @@ export function App() {
       );
     };
   };
-  const startMujoco = () => {
-    setMujocoHistory([]);setMujocoRunning(true);
-    const base=API?API.replace(/^http/,"ws"):`${location.protocol==="https:"?"wss":"ws"}://${location.host}`;
-    const socket=new WebSocket(`${base}/ws/mujoco-train`);
-    socket.onopen=()=>socket.send(JSON.stringify({episodes:30}));
-    socket.onmessage=(event)=>{const message=JSON.parse(event.data);if(message.type==="mujoco_step")setMujocoFrame(message);if(message.type==="mujoco_episode")setMujocoHistory(values=>[...values,message.total_reward]);if(message.type==="mujoco_complete"){setMujocoRunning(false);socket.close()}};
-    socket.onerror=()=>setMujocoRunning(false);
+  const startMujoco = async () => {
+    setMujocoHistory([]);
+    setMujocoRunning(true);
+    setMujocoStatus("正在唤醒 MuJoCo 服务…");
+    ws.current?.close();
+
+    try {
+      if (API) {
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => controller.abort(), 60000);
+        await fetch(`${API.replace(/\/$/, "")}/health`, {
+          signal: controller.signal,
+        });
+        window.clearTimeout(timer);
+      }
+    } catch {
+      // Render 冷启动时 health 可能超时，WebSocket 重试仍可继续连接。
+    }
+
+    const base = API
+      ? API.replace(/\/$/, "").replace(/^http/, "ws")
+      : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}`;
+
+    const connect = (attempt: number) => {
+      if (attempt > 3) {
+        setMujocoRunning(false);
+        setMujocoStatus("连接失败，请再次点击启动");
+        return;
+      }
+      setMujocoStatus(
+        attempt === 1 ? "正在连接 MuJoCo…" : `正在重新连接（${attempt}/3）…`,
+      );
+      const socket = new WebSocket(`${base}/ws/mujoco-train`);
+      ws.current = socket;
+      let received = false;
+      let completed = false;
+      const timeout = window.setTimeout(() => socket.close(), 20000);
+
+      socket.onopen = () => {
+        setMujocoStatus("训练已启动，正在生成动作…");
+        socket.send(JSON.stringify({ episodes: 30 }));
+      };
+      socket.onmessage = (event) => {
+        received = true;
+        window.clearTimeout(timeout);
+        const message = JSON.parse(event.data);
+        if (message.type === "mujoco_step") {
+          setMujocoFrame(message);
+          setMujocoStatus(
+            `第 ${message.episode}/30 回合 · ${message.action_name}`,
+          );
+        }
+        if (message.type === "mujoco_episode")
+          setMujocoHistory((values) => [...values, message.total_reward]);
+        if (message.type === "mujoco_complete") {
+          completed = true;
+          setMujocoRunning(false);
+          setMujocoStatus("30 回合训练完成，可以再次训练");
+          socket.close();
+        }
+      };
+      socket.onerror = () => socket.close();
+      socket.onclose = () => {
+        window.clearTimeout(timeout);
+        if (!received) {
+          window.setTimeout(() => connect(attempt + 1), 1200);
+        } else if (!completed) {
+          setMujocoRunning(false);
+          setMujocoStatus("训练连接中断，请再次点击启动");
+        }
+      };
+    };
+    connect(1);
   };
   useEffect(() => {
     if (page === "motion")
@@ -346,7 +413,7 @@ export function App() {
             title="启动 MuJoCo Microduck 仿真训练"
             text="左右髋关节由电机力矩控制，接触、摩擦和重力由 MuJoCo 计算；目标是向前行走且不跌倒。"
           >
-            <div className="mujoco-lab"><MujocoWorld frame={mujocoFrame}/><aside><span className="pill">真实 MuJoCo 物理</span><h3>五动作关节控制</h3>{["0 双腿放松","1 左腿摆动","2 右腿摆动","3 迈步 A","4 迈步 B"].map(x=><code key={x}>{x}</code>)}<button disabled={mujocoRunning} onClick={startMujoco}>{mujocoRunning?"正在训练…":"▶ 启动 30 回合 MuJoCo 训练"}</button><p>已完成 {mujocoHistory.length} 回合。奖励综合前进速度、存活、能耗、跌倒和目标。</p></aside></div>
+            <div className="mujoco-lab"><MujocoWorld frame={mujocoFrame}/><aside><span className="pill">真实 MuJoCo 物理</span><h3>五动作关节控制</h3>{["0 双腿放松","1 左腿摆动","2 右腿摆动","3 迈步 A","4 迈步 B"].map(x=><code key={x}>{x}</code>)}<button disabled={mujocoRunning} onClick={startMujoco}>{mujocoRunning?"MuJoCo 运行中…":"▶ 启动 30 回合 MuJoCo 训练"}</button><p className={`mujoco-status ${mujocoStatus.includes("失败") ? "error" : ""}`}>{mujocoStatus}</p><p>已完成 {mujocoHistory.length} 回合。奖励综合前进速度、存活、能耗、跌倒和目标。</p></aside></div>
             <div className="upgrade">
               <article>
                 <b>现在 · Canvas 2D</b>
