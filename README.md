@@ -8,7 +8,7 @@
 2. 自己写环境：使用简单动作指令操作 2D duck 踢球环境，并认识状态、动作、奖励和结束条件。
 3. 强化学习训练：使用 Q-learning 训练 Microduck 踢球，实时展示训练动作和奖励曲线。
 4. 仿真与物理：修改加速度、摩擦和踢球冲量，预测并观察结果。
-5. 升级路线：理解 Canvas 2D → Box2D → MuJoCo 的能力增量。
+5. 升级路线：启动真实 MuJoCo Microduck 关节仿真，用 Q-learning 控制双腿力矩学习行走，并理解 Canvas 2D → Box2D → MuJoCo 的能力增量。
 
 ## 启动
 

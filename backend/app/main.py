@@ -3,6 +3,7 @@ from fastapi import FastAPI,WebSocket,WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel,Field
 from .simulation import DuckKickEnv,Physics,QAgent,scripted_frames
+from .mujoco_training import MujocoDuck,MujocoQAgent
 app=FastAPI(title="MicroduckTraining API",version="1.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS","http://localhost:5173").split(",")],allow_origin_regex=r"https://(microduck-training|frontend)(-[a-z0-9-]+)?\.vercel\.app",allow_methods=["*"],allow_headers=["*"])
 class SimulationRequest(BaseModel):
@@ -25,4 +26,19 @@ async def train(ws:WebSocket):
                     if done:break
                 agent.end_episode();await ws.send_json({"type":"episode","episode":episode,"total_reward":total,"epsilon":agent.epsilon,"q_states":len(agent.q)})
             await ws.send_json({"type":"complete","episodes":episodes})
+    except WebSocketDisconnect:return
+
+@app.websocket("/ws/mujoco-train")
+async def mujoco_train(ws:WebSocket):
+    await ws.accept()
+    try:
+        config=await ws.receive_json();episodes=max(1,min(120,int(config.get("episodes",30))));agent=MujocoQAgent()
+        for episode in range(1,episodes+1):
+            env=MujocoDuck();state=env.reset();total=0.
+            for step in range(350):
+                action=agent.choose(state);next_state,reward,done,frame=env.step(action);td=agent.learn(state,action,reward,next_state,done);state=next_state;total+=reward
+                if step%6==0 or done:await ws.send_json({"type":"mujoco_step","episode":episode,"step":step+1,"total_reward":total,"td_error":td,"epsilon":agent.epsilon,**frame});await asyncio.sleep(.012)
+                if done:break
+            agent.end();await ws.send_json({"type":"mujoco_episode","episode":episode,"total_reward":total,"epsilon":agent.epsilon,"q_states":len(agent.q)})
+        await ws.send_json({"type":"mujoco_complete","episodes":episodes})
     except WebSocketDisconnect:return
