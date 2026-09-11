@@ -20,9 +20,7 @@ export function App() {
       <main>
         <FootballCourse />
       </main>
-      <footer>
-        MicroDuck 足球 AI 实战 · 仿真训练 → 域随机化 → 真实机器人
-      </footer>
+      <footer>MicroDuck 足球 AI 实战 · 仿真训练 → 域随机化 → 真实机器人</footer>
     </div>
   );
 }
