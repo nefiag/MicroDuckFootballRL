@@ -4,7 +4,8 @@
 运行：python examples/gymnasium_football_env.py
 """
 
-from dataclasses import dataclass
+from collections import deque
+from dataclasses import asdict, dataclass
 from enum import IntEnum
 from math import atan2, cos, hypot, pi, sin
 from typing import Any
@@ -44,6 +45,51 @@ class Goal:
     width: float
 
 
+@dataclass(frozen=True)
+class DomainParameters:
+    """单个回合实际使用的物理与传感器参数。"""
+
+    friction: float
+    mass: float
+    motor_power: float
+    motor_delay_steps: int
+    observation_noise: float
+
+
+@dataclass(frozen=True)
+class DomainRandomizationConfig:
+    """Sim2Real 域随机化范围；每次 reset 从范围内重新采样。"""
+
+    enabled: bool = True
+    friction_range: tuple[float, float] = (0.4, 1.2)
+    mass_range: tuple[float, float] = (0.8, 1.2)
+    motor_power_range: tuple[float, float] = (0.75, 1.15)
+    motor_delay_range: tuple[int, int] = (0, 3)
+    observation_noise_range: tuple[float, float] = (0.0, 0.025)
+
+    def sample(self, rng: np.random.Generator) -> DomainParameters:
+        if not self.enabled:
+            return DomainParameters(
+                friction=0.82,
+                mass=1.0,
+                motor_power=1.0,
+                motor_delay_steps=0,
+                observation_noise=0.0,
+            )
+        return DomainParameters(
+            friction=float(rng.uniform(*self.friction_range)),
+            mass=float(rng.uniform(*self.mass_range)),
+            motor_power=float(rng.uniform(*self.motor_power_range)),
+            motor_delay_steps=int(
+                rng.integers(
+                    self.motor_delay_range[0],
+                    self.motor_delay_range[1] + 1,
+                )
+            ),
+            observation_noise=float(rng.uniform(*self.observation_noise_range)),
+        )
+
+
 class Action(IntEnum):
     """离散动作编号。"""
 
@@ -79,6 +125,7 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
         self,
         render_mode: str | None = None,
         max_steps: int = 400,
+        domain_randomization: bool = True,
     ) -> None:
         super().__init__()
         if render_mode not in self.metadata["render_modes"] and render_mode is not None:
@@ -86,6 +133,9 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
 
         self.render_mode = render_mode
         self.max_steps = max_steps
+        self.randomization = DomainRandomizationConfig(
+            enabled=domain_randomization,
+        )
         self.action_space = spaces.Discrete(len(Action))
         self.observation_space = spaces.Box(
             low=np.array(
@@ -104,6 +154,8 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
         self.ball = Ball(x=0.0, y=0.0)
         self.steps = 0
         self.has_touched_ball = False
+        self.domain = self.randomization.sample(self.np_random)
+        self._action_queue: deque[Action | None] = deque()
 
     def reset(
         self,
@@ -115,6 +167,10 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
 
         super().reset(seed=seed)
         options = options or {}
+
+        # 每个回合自动重新采样。相同 seed 会得到相同参数，便于复现实验。
+        self.domain = self.randomization.sample(self.np_random)
+        self._action_queue = deque([None] * self.domain.motor_delay_steps)
 
         self.duck = MicroDuck(
             x=float(options.get("duck_x", self.np_random.uniform(-2.6, -1.4))),
@@ -147,13 +203,17 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
             "score_goal": 0.0,
         }
 
-        if action == Action.FORWARD:
+        requested_action = Action(action)
+        self._action_queue.append(requested_action)
+        applied_action = self._action_queue.popleft()
+
+        if applied_action == Action.FORWARD:
             self._move_forward()
-        elif action == Action.TURN_LEFT:
+        elif applied_action == Action.TURN_LEFT:
             self.duck.angle = self._wrap_angle(self.duck.angle + 0.16)
-        elif action == Action.TURN_RIGHT:
+        elif applied_action == Action.TURN_RIGHT:
             self.duck.angle = self._wrap_angle(self.duck.angle - 0.16)
-        elif action == Action.KICK:
+        elif applied_action == Action.KICK:
             self._kick_ball()
 
         touching = self._duck_ball_distance() <= self.duck.radius + self.ball.radius
@@ -185,18 +245,23 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
         reward = float(sum(reward_terms.values()))
         info = self._get_info()
         info["reward_terms"] = reward_terms
-        info["action_name"] = {
+        action_names = {
             Action.FORWARD: "前进",
             Action.TURN_LEFT: "左转",
             Action.TURN_RIGHT: "右转",
             Action.KICK: "踢球",
-        }[Action(action)]
+        }
+        info["requested_action"] = action_names[requested_action]
+        info["applied_action"] = (
+            action_names[applied_action] if applied_action is not None else "电机延迟等待"
+        )
         return self._get_observation(), reward, terminated, truncated, info
 
     def _move_forward(self) -> None:
         """沿 MicroDuck 当前朝向前进，并处理身体推球。"""
 
-        step_size = 0.09
+        # 同样功率下，质量越大加速越慢；电机功率越高移动越快。
+        step_size = 0.09 * self.domain.motor_power / self.domain.mass
         self.duck.x = float(
             np.clip(
                 self.duck.x + cos(self.duck.angle) * step_size,
@@ -213,8 +278,9 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
         )
 
         if self._duck_ball_distance() <= self.duck.radius + self.ball.radius:
-            self.ball.vx += cos(self.duck.angle) * 0.035
-            self.ball.vy += sin(self.duck.angle) * 0.035
+            push_power = 0.035 * self.domain.motor_power / self.domain.mass
+            self.ball.vx += cos(self.duck.angle) * push_power
+            self.ball.vy += sin(self.duck.angle) * push_power
 
     def _kick_ball(self) -> None:
         """球在脚边且大致位于正面时施加冲量。"""
@@ -227,7 +293,7 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
         kick_reach = self.duck.radius + self.ball.radius + 0.08
 
         if distance <= kick_reach and angle_error <= pi / 3:
-            kick_power = 0.32
+            kick_power = 0.32 * self.domain.motor_power / self.domain.mass
             self.ball.vx += cos(self.duck.angle) * kick_power
             self.ball.vy += sin(self.duck.angle) * kick_power
 
@@ -242,8 +308,10 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
 
         self.ball.x += self.ball.vx
         self.ball.y += self.ball.vy
-        self.ball.vx *= 0.92
-        self.ball.vy *= 0.92
+        # 摩擦越大，速度衰减越快。
+        damping = float(np.clip(1.0 - self.domain.friction * 0.08, 0.84, 0.97))
+        self.ball.vx *= damping
+        self.ball.vy *= damping
 
     def _get_observation(self) -> np.ndarray:
         observation = np.array(
@@ -261,6 +329,13 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
             ],
             dtype=np.float32,
         )
+        # 噪声模拟摄像头定位和状态估计误差。
+        if self.domain.observation_noise > 0:
+            observation += self.np_random.normal(
+                0.0,
+                self.domain.observation_noise,
+                size=observation.shape,
+            ).astype(np.float32)
         return np.clip(
             observation,
             self.observation_space.low,
@@ -277,6 +352,7 @@ class MicroDuckFootballEnv(gym.Env[np.ndarray, int]):
             ),
             "touched_ball": self.has_touched_ball,
             "scored": self._is_goal(),
+            "domain": asdict(self.domain),
         }
 
     def _duck_ball_distance(self) -> float:
@@ -356,7 +432,12 @@ def run_random_demo() -> None:
     print(f"总奖励：{total_reward:.2f}")
     print(f"是否进球：{info['scored']}")
     print(f"最终状态维度：{observation.shape}")
+    print(f"本回合随机域参数：{info['domain']}")
     env.close()
+
+
+# 教程中也可以直接使用更短的 FootballEnv 名称。
+FootballEnv = MicroDuckFootballEnv
 
 
 if __name__ == "__main__":
