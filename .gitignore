@@ -1,9 +1,14 @@
 frontend/node_modules/
 frontend/dist/
 __pycache__/
+*.egg-info/
 .pytest_cache/
 .env
 *.tsbuildinfo
 .vercel/
 .vercel
 .env*
+models/*.zip
+models/*.pt
+models/checkpoints/
+logs/

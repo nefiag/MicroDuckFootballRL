@@ -1,0 +1,7 @@
+{
+  "friction": [0.4, 1.2],
+  "robot_mass_scale": [0.85, 1.15],
+  "motor_power": [0.8, 1.1],
+  "motor_delay_steps": [0, 3],
+  "observation_noise": [0.0, 0.02]
+}
