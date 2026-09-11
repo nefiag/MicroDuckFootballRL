@@ -63,6 +63,36 @@
   border-radius: 22px;
   box-shadow: 0 16px 45px #06121c66;
 }
+.football-animation {
+  position: relative;
+}
+.action-overlay {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  left: 14px;
+  display: grid;
+  max-width: 265px;
+  padding: 10px 13px;
+  border: 1px solid #ffffff36;
+  border-radius: 11px;
+  color: white;
+  background: #102c43e8;
+  box-shadow: 0 8px 25px #06121c36;
+}
+.action-overlay small {
+  color: #5ae2ae;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.action-overlay b {
+  margin: 2px 0;
+}
+.action-overlay span {
+  color: #cce1ea;
+  font-size: 11px;
+}
 .football-animation text {
   font: 800 17px system-ui;
   fill: #16334b;
@@ -204,6 +234,59 @@
   font:
     13px/1.7 ui-monospace,
     monospace;
+}
+.synced-code {
+  display: block;
+}
+.synced-code > span {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  min-height: 27px;
+  margin: 0 -8px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
+}
+.synced-code > span.executing {
+  color: #102c43;
+  background: #ffd333;
+  box-shadow: 0 0 0 2px #fff3ad;
+}
+.synced-code i {
+  color: #69889a;
+  font-style: normal;
+  user-select: none;
+}
+.synced-code b {
+  font-weight: 500;
+  white-space: pre-wrap;
+}
+.synced-code em {
+  align-self: center;
+  margin-left: 8px;
+  padding: 2px 5px;
+  border-radius: 8px;
+  color: white;
+  background: #147653;
+  font: 700 9px system-ui;
+  font-style: normal;
+}
+.execution-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: #176b42;
+  background: #e8f8f0;
+}
+.execution-note span {
+  color: #526d61;
+  text-align: right;
 }
 .practice button {
   margin-top: 10px;

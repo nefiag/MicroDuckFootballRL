@@ -301,6 +301,66 @@ const codeGuides = [
   },
 ] as const;
 
+const syncSequences = [
+  [
+    [0, "重置球场", "读取初始观察状态"],
+    [1, "开始回合", "检查任务是否结束"],
+    [2, "选择动作", "策略根据状态决定前进或踢球"],
+    [3, "执行动作", "环境推进一步并返回奖励"],
+    [4, "更新策略", "AI 从刚才的结果中学习"],
+  ],
+  [
+    [0, "定义观察函数", "建立状态空间入口"],
+    [2, "定位足球", "计算球相对机器人的横向距离"],
+    [3, "定位足球", "计算球相对机器人的纵向距离"],
+    [4, "定位球门", "计算球门相对足球的横向距离"],
+    [6, "读取朝向", "把机器人角度加入状态"],
+    [7, "输出状态", "向策略返回固定顺序的向量"],
+  ],
+  [
+    [0, "计算时间成本", "每一步给予轻微惩罚"],
+    [1, "接近足球", "距离缩短，获得正奖励"],
+    [2, "触碰足球", "检测碰撞并奖励 +1"],
+    [3, "推向球门", "足球朝球门移动，奖励增加"],
+    [4, "完成进球", "触发本回合最高奖励 +100"],
+  ],
+  [
+    [0, "加载 PPO", "导入强化学习算法"],
+    [2, "创建球场", "实例化训练环境"],
+    [3, "建立策略网络", "连接 MLP 策略与环境"],
+    [4, "启用 MPS", "使用 Mac Apple Silicon 加速"],
+    [5, "开始训练", "持续采集 500,000 步经验"],
+    [6, "保存模型", "写出足球策略参数"],
+  ],
+  [
+    [0, "检查成功率", "判断是否达到 80% 升级线"],
+    [1, "解锁关卡", "提升等级并限制最高为 4"],
+    [3, "扩大范围", "读取当前关卡的足球生成半径"],
+    [4, "更新环境", "应用新的课程难度"],
+  ],
+  [
+    [0, "建立差距清单", "收集仿真与现实参数"],
+    [1, "测量摩擦", "读取真实地面摩擦"],
+    [2, "加入电机延迟", "模拟命令到动作的等待时间"],
+    [3, "限制相机频率", "模拟每秒 30 帧视觉输入"],
+    [4, "加入位置噪声", "模拟视觉定位误差"],
+  ],
+  [
+    [0, "开始随机化", "每回合生成一个新世界"],
+    [1, "改变摩擦", "切换木板、草地、地毯和瓷砖"],
+    [2, "改变质量", "模拟装配与电池重量差异"],
+    [3, "改变功率", "模拟电机输出变化"],
+    [4, "改变延迟", "模拟摄像头响应波动"],
+  ],
+  [
+    [0, "导出模型", "生成可部署策略文件"],
+    [1, "读取相机", "获取真实足球和球门状态"],
+    [2, "策略推理", "计算机器人下一步动作"],
+    [3, "安全限幅", "限制速度、力矩和关节范围"],
+    [4, "执行动作", "MicroDuck 接近足球并射门"],
+  ],
+] as const;
+
 const levels = [
   "学会走路",
   "学会找球",
@@ -318,7 +378,7 @@ export function FootballCourse() {
 
   useEffect(() => {
     if (!playing) return;
-    const timer = window.setInterval(() => setTick((value) => value + 1), 900);
+    const timer = window.setInterval(() => setTick((value) => value + 1), 1200);
     return () => window.clearInterval(timer);
   }, [playing]);
 
@@ -328,6 +388,8 @@ export function FootballCourse() {
     if (selected === 2) return [0.1, 0.1, 1, 5, 100][tick % 5];
     return Math.min(96, 8 + tick * 3);
   }, [selected, tick]);
+  const sequence = syncSequences[selected];
+  const activeSync = sequence[tick % sequence.length];
 
   return (
     <section className="football-course">
@@ -352,6 +414,8 @@ export function FootballCourse() {
           tick={tick}
           reward={reward}
           playing={playing}
+          action={activeSync[1]}
+          effect={activeSync[2]}
         />
       </div>
 
@@ -413,8 +477,23 @@ export function FootballCourse() {
           <span>实操代码</span>
           <h4>本集实验</h4>
           <pre>
-            <code>{episode.code}</code>
+            <code className="synced-code" aria-label="同步执行代码">
+              {episode.code.split("\n").map((line, index) => (
+                <span
+                  className={index === activeSync[0] ? "executing" : ""}
+                  key={`${index}-${line}`}
+                >
+                  <i>{index + 1}</i>
+                  <b>{line || " "}</b>
+                  {index === activeSync[0] && <em>正在执行</em>}
+                </span>
+              ))}
+            </code>
           </pre>
+          <div className="execution-note" aria-live="polite">
+            <b>当前动作：{activeSync[1]}</b>
+            <span>{activeSync[2]}</span>
+          </div>
           <button onClick={() => navigator.clipboard?.writeText(episode.code)}>
             复制代码
           </button>
@@ -486,11 +565,15 @@ function FootballAnimation({
   tick,
   reward,
   playing,
+  action,
+  effect,
 }: {
   episode: number;
   tick: number;
   reward: number;
   playing: boolean;
+  action: string;
+  effect: string;
 }) {
   const progress = (tick % 9) / 8;
   const duckX =
@@ -502,6 +585,11 @@ function FootballAnimation({
     <div
       className={`football-animation episode-${episode} ${playing ? "playing" : "paused"}`}
     >
+      <div className="action-overlay" aria-live="polite">
+        <small>动画与代码同步</small>
+        <b>{action}</b>
+        <span>{effect}</span>
+      </div>
       <svg viewBox="0 0 720 390" role="img" aria-label="MicroDuck 足球训练动画">
         <defs>
           <linearGradient id="sky" x2="0" y2="1">
