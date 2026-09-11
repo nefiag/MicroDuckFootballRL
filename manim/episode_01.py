@@ -150,7 +150,19 @@ class EpisodeOne(Scene):
         return VGroup(self.duck().scale(1.5), icons.next_to(ORIGIN, DOWN, buff=1.4))
 
     def rules(self) -> VGroup:
-        code = VGroup(*[Code(code_string=line, language="Python", background="window", font_size=16) for line in ["if ball_left: turn_left()", "elif ball_right: turn_right()", "elif ball_close: kick()"]]).arrange(DOWN, buff=0.12)
+        code = VGroup(*[
+            Code(
+                code_string=line,
+                language="Python",
+                background="window",
+                paragraph_config={"font_size": 16},
+            )
+            for line in [
+                "if ball_left: turn_left()",
+                "elif ball_right: turn_right()",
+                "elif ball_close: kick()",
+            ]
+        ]).arrange(DOWN, buff=0.12)
         return VGroup(code.scale(0.7).shift(LEFT * 2.7), self.pitch().scale(0.55).shift(RIGHT * 2.2))
 
     def chaos(self) -> VGroup:
@@ -182,7 +194,12 @@ class EpisodeOne(Scene):
 
     def code_sync(self) -> VGroup:
         pitch = self.pitch().scale(0.55).shift(LEFT * 2.3)
-        code = Code(code_string="observation, info = env.reset()\naction = policy.predict(observation)\nobservation, reward, terminated, truncated, info = env.step(action)", language="Python", background="window", font_size=18).scale(0.72).shift(RIGHT * 2.4)
+        code = Code(
+            code_string="observation, info = env.reset()\naction = policy.predict(observation)\nobservation, reward, terminated, truncated, info = env.step(action)",
+            language="Python",
+            background="window",
+            paragraph_config={"font_size": 18},
+        ).scale(0.72).shift(RIGHT * 2.4)
         return VGroup(pitch, code, Arrow(pitch.get_right(), code.get_left(), color=YELLOW))
 
     def termination(self) -> VGroup:

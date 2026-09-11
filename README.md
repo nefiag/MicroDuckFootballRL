@@ -42,13 +42,17 @@ npm run dev
 第一集 Manim 视频：
 
 ```bash
-# macOS
+# macOS（使用系统 say）
 brew install py3cairo ffmpeg pango
 pip install manim
 bash scripts/render_episode_01_with_voice.sh
+
+# Linux（使用微软中文神经语音）
+pip install manim edge-tts imageio-ffmpeg
+bash scripts/render_episode_01_with_voice.sh
 ```
 
-Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒时间轴。带配音脚本会调用 macOS `say` 生成中文旁白，按 10 段时间码校准，再用 FFmpeg 合成音轨。
+Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒时间轴。带配音脚本在 macOS 调用系统 `say`，在 Linux 调用 Edge TTS 中文神经语音；程序按 10 段时间码校准后使用 FFmpeg 合成音轨。
 
 输出文件：
 
@@ -57,7 +61,7 @@ media/videos/episode_01/720p24/microduck_episode_01.mp4
 media/video/microduck_episode_01_voiced.mp4
 ```
 
-更换中文音色或初始语速：
+macOS 可更换中文音色或初始语速；Linux 的 `--voice` 可传入 Edge TTS 音色（默认为 `zh-CN-XiaoxiaoNeural`）：
 
 ```bash
 say -v '?'

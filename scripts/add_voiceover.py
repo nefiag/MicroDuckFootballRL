@@ -1,4 +1,4 @@
-"""使用 macOS say 生成中文旁白，并通过 FFmpeg 合成到第一集视频。"""
+"""生成中文旁白，并通过 FFmpeg 合成到第一集视频。"""
 
 import argparse
 import re
@@ -6,6 +6,8 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+
+import av
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,8 +26,20 @@ def run(command: list[str]) -> None:
 def require(command: str) -> str:
     path = shutil.which(command)
     if not path:
-        raise SystemExit(f"缺少命令：{command}。请先安装 FFmpeg，且需在 macOS 运行。")
+        raise SystemExit(f"缺少命令：{command}")
     return path
+
+
+def ffmpeg_executable() -> str:
+    installed = shutil.which("ffmpeg")
+    if installed:
+        return installed
+    try:
+        import imageio_ffmpeg
+
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except ImportError as error:
+        raise SystemExit("缺少 FFmpeg；请安装 ffmpeg 或 imageio-ffmpeg") from error
 
 
 def clean_narration(markdown: str) -> str:
@@ -55,14 +69,11 @@ def sections(path: Path) -> list[tuple[int, str]]:
     return result
 
 
-def audio_duration(ffprobe: str, path: Path) -> float:
-    completed = subprocess.run(
-        [ffprobe, "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(path)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return float(completed.stdout.strip())
+def audio_duration(path: Path) -> float:
+    with av.open(str(path)) as container:
+        if container.duration is None:
+            raise ValueError(f"无法读取音频时长：{path}")
+        return container.duration / av.time_base
 
 
 def atempo_filter(factor: float) -> str:
@@ -78,13 +89,20 @@ def atempo_filter(factor: float) -> str:
 
 
 def synthesize_track(script: Path, voice: str, rate: int, workspace: Path) -> Path:
-    say, ffmpeg, ffprobe = require("say"), require("ffmpeg"), require("ffprobe")
+    say = shutil.which("say")
+    ffmpeg = ffmpeg_executable()
     segment_paths: list[Path] = []
     for index, (target_duration, narration) in enumerate(sections(script), start=1):
-        raw_audio = workspace / f"raw-{index:02d}.aiff"
+        raw_audio = workspace / f"raw-{index:02d}.{'aiff' if say else 'mp3'}"
         segment_audio = workspace / f"segment-{index:02d}.wav"
-        run([say, "-v", voice, "-r", str(rate), "-o", str(raw_audio), narration])
-        source_duration = audio_duration(ffprobe, raw_audio)
+        if say:
+            run([say, "-v", voice, "-r", str(rate), "-o", str(raw_audio), narration])
+        else:
+            import edge_tts
+
+            edge_voice = voice if voice != "Tingting" else "zh-CN-XiaoxiaoNeural"
+            edge_tts.Communicate(narration, edge_voice).save_sync(str(raw_audio))
+        source_duration = audio_duration(raw_audio)
         speed_factor = source_duration / target_duration
         audio_filter = f"{atempo_filter(speed_factor)},apad=pad_dur={target_duration},atrim=0:{target_duration}"
         run([
@@ -109,7 +127,11 @@ def synthesize_track(script: Path, voice: str, rate: int, workspace: Path) -> Pa
 
 def find_default_video() -> Path:
     candidates = sorted(
-        (ROOT / "media").glob("videos/**/microduck_episode_01.mp4"),
+        (
+            path
+            for path in (ROOT / "media/videos/episode_01").glob("**/*.mp4")
+            if "partial_movie_files" not in path.parts
+        ),
         key=lambda path: path.stat().st_mtime,
         reverse=True,
     )
@@ -127,7 +149,7 @@ def main() -> None:
     parser.add_argument("--rate", type=int, default=210, help="macOS say 初始语速")
     args = parser.parse_args()
     video = args.video or find_default_video()
-    ffmpeg = require("ffmpeg")
+    ffmpeg = ffmpeg_executable()
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="microduck-voice-") as directory:
