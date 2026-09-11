@@ -49,6 +49,7 @@ MicroDuckFootballRL/
 ├── course/
 │   └── episodes.json              # 8 集课程唯一内容源
 ├── examples/
+│   ├── gymnasium_football_env.py  # 三对象、四动作完整足球环境
 │   └── microduck_football_env.py  # Gymnasium 随机策略示例
 ├── frontend/
 │   ├── src/
