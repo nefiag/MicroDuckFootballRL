@@ -61,9 +61,16 @@ media/videos/episode_01/720p24/microduck_episode_01.mp4
 media/video/microduck_episode_01_voiced.mp4
 media/video/microduck_episode_01_russian.mp4
 media/video/microduck_episode_01_spanish.mp4
+media/video/microduck_mujoco_rl_course_voiced.mp4
 ```
 
 旁白生成器会按中文、俄语和西班牙语音色修正 MicroDuck 的品牌读音，使首音读作 “Mai”。视频母版左上角包含“制作 by 黄旭”水印。
+
+MuJoCo 与强化学习课程视频可一键生成：
+
+```bash
+bash scripts/render_mujoco_rl_course.sh
+```
 
 macOS 可更换中文音色或初始语速；Linux 的 `--voice` 可传入 Edge TTS 音色（默认为 `zh-CN-XiaoxiaoNeural`）：
 
