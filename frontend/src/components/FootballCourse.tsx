@@ -158,6 +158,89 @@ const episodes: Episode[] = [
   },
 ];
 
+const codeGuides = [
+  {
+    structure: "这是强化学习最小循环：重置环境得到初始状态，在循环中选择动作、推进环境、接收反馈，再用反馈更新策略。",
+    statements: [
+      ["observation = env.reset()", "重置球场，并取得模型第一次看到的状态。"],
+      ["while not done", "只要回合没有进球、出界或超时，就继续交互。"],
+      ["env.step(action)", "执行动作，并一次性返回新状态、奖励和结束标记。"],
+      ["policy.learn(reward)", "教学简写；正式算法还会使用状态、动作和价值估计。"],
+    ],
+    standards: ["使用 observation、action、reward、done 等领域名称", "一个循环只推进一次环境", "真实项目应设置最大步数，避免死循环"],
+  },
+  {
+    structure: "函数接收三个对象并返回固定顺序的一维状态向量。前四项是相对位置，最后一项是机器人朝向。",
+    statements: [
+      ["def observation(...)", "def 定义可重复调用的函数，参数明确列出依赖对象。"],
+      ["ball.x - robot.x", "球的横坐标减机器人横坐标；正值表示球在右侧。"],
+      ["goal.x - ball.x", "用球到球门的相对位置描述射门方向。"],
+      ["return [...]", "返回固定长度列表；训练和真实部署必须保持完全相同顺序。"],
+    ],
+    standards: ["坐标单位统一使用米，角度统一使用弧度", "对输入做归一化并记录上下界", "不要在训练与部署阶段改变特征顺序"],
+  },
+  {
+    structure: "奖励由时间成本、接近球进度、触球奖励、朝球门进度和进球大奖五部分相加组成。",
+    statements: [
+      ["reward = -0.002", "每走一步略微扣分，鼓励更快完成任务。"],
+      ["reward += old - new", "距离变小时差值为正，远离时自然变成惩罚。"],
+      ["if touched_ball", "事件奖励只在满足触球条件时加入。"],
+      ["if scored", "终局目标权重最高，确保策略最终服务于进球。"],
+    ],
+    standards: ["各奖励项命名并分别记录到日志", "避免只奖励动作本身，应奖励可验证结果", "检查奖励量级，防止小项盖过最终目标"],
+  },
+  {
+    structure: "先创建环境，再构造 PPO 模型，训练固定步数，最后保存参数；模型配置与训练执行分离。",
+    statements: [
+      ["from stable_baselines3 import PPO", "从库中导入近端策略优化算法类。"],
+      ["PPO(\"MlpPolicy\", env, ...)", "使用多层感知机策略，并绑定足球环境。"],
+      ["device=\"mps\"", "在 Apple Silicon 上请求 Metal 加速；不支持时改为 auto。"],
+      ["model.learn(...)", "执行 500,000 个环境交互步，而不是 500,000 个回合。"],
+    ],
+    standards: ["固定随机种子并保存全部超参数", "训练与评估使用不同环境实例", "模型文件带版本、步数和日期，不直接覆盖"],
+  },
+  {
+    structure: "先根据成功率判断是否升级，再从配置表读取当前关卡范围，最后通过环境方法统一更新难度。",
+    statements: [
+      ["success_rate > 0.80", "评估进球率超过 80% 才解锁下一关。"],
+      ["min(level + 1, 4)", "把最高等级限制为 4，防止数组越界。"],
+      ["[...][level - 1]", "关卡从 1 编号，列表索引从 0 开始，因此需要减 1。"],
+      ["set_curriculum(...)", "把难度变化封装到环境接口，避免外部直接修改内部状态。"],
+    ],
+    standards: ["升级依据使用多回合移动平均，不看单局结果", "关卡参数集中配置", "保留旧关卡抽样，检查灾难性遗忘"],
+  },
+  {
+    structure: "字典把每个现实差距映射为可测量参数，形成仿真校准清单。",
+    statements: [
+      ["sim2real_gap = {...}", "用键值对集中保存现实测量结果。"],
+      ["measure_floor()", "通过函数读取实测摩擦，而不是把猜测散落在代码里。"],
+      ["motor_delay_ms", "明确名称中携带毫秒单位，减少单位误用。"],
+      ["position_noise", "位置噪声标准差用于模拟视觉测量抖动。"],
+    ],
+    standards: ["变量名携带不明显的单位后缀", "实测值、默认值和随机范围分开保存", "配置应可序列化，便于复现实验"],
+  },
+  {
+    structure: "randomize 函数在每回合 reset 时调用，对动力学和传感器参数分别采样。",
+    statements: [
+      ["random.uniform(a, b)", "从闭区间附近均匀采样一个随机浮点数。"],
+      ["model.mass *= ...", "按比例缩放质量，保留模型各部件原来的相对关系。"],
+      ["motor.power *= ...", "模拟不同电量、温度下的电机输出变化。"],
+      ["camera.delay = ...", "随机视觉延迟，使策略不依赖零延时观测。"],
+    ],
+    standards: ["只在 reset 时随机化，避免单回合物理规律突变", "范围应覆盖实测值但不过分夸张", "记录每回合采样参数以复现失败案例"],
+  },
+  {
+    structure: "部署流水线依次完成模型导出、传感器读取、输入归一化、策略推理、安全限幅和机器人执行。",
+    statements: [
+      ["model.export(...)", "导出只含推理图的模型，真实机器人无需训练框架。"],
+      ["normalize(camera.observe())", "把相机观测转换成训练时相同的范围和排列。"],
+      ["policy.run(obs)", "前向推理得到动作，不在真实机器人上反向传播。"],
+      ["safety_limit(action)", "在执行前限制速度、力矩和关节范围。"],
+    ],
+    standards: ["安全检查永远位于推理与执行之间", "控制循环捕获超时并进入安全姿态", "先支架低速测试，再逐项提高动作范围"],
+  },
+] as const;
+
 const levels = [
   "学会走路",
   "学会找球",
@@ -275,6 +358,31 @@ export function FootballCourse() {
           <button onClick={() => navigator.clipboard?.writeText(episode.code)}>
             复制代码
           </button>
+        </article>
+        <article className="course-card code-guide">
+          <span>代码精讲</span>
+          <h4>结构、语句含义与代码规范</h4>
+          <div className="code-structure">
+            <b>① 代码结构</b>
+            <p>{codeGuides[selected].structure}</p>
+          </div>
+          <div className="statement-list">
+            <b>② 关键语句逐句解释</b>
+            {codeGuides[selected].statements.map(([statement, meaning]) => (
+              <div key={statement}>
+                <code>{statement}</code>
+                <p>{meaning}</p>
+              </div>
+            ))}
+          </div>
+          <div className="code-standards">
+            <b>③ 本集代码规范</b>
+            <ul>
+              {codeGuides[selected].standards.map((standard) => (
+                <li key={standard}>{standard}</li>
+              ))}
+            </ul>
+          </div>
         </article>
         <article className="course-card checklist">
           <span>学习检查</span>

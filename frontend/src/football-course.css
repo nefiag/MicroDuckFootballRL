@@ -208,6 +208,54 @@
 .practice button {
   margin-top: 10px;
 }
+.code-guide {
+  grid-column: 1/-1;
+}
+.code-guide > h4 {
+  margin-bottom: 18px;
+}
+.code-structure {
+  padding: 14px 16px;
+  border-left: 4px solid #19a675;
+  border-radius: 8px;
+  background: #effaf5;
+}
+.code-structure p,
+.statement-list p {
+  margin: 6px 0 0;
+  color: #536b7a;
+  line-height: 1.6;
+}
+.statement-list {
+  margin-top: 18px;
+}
+.statement-list > div {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) 1.4fr;
+  gap: 16px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid #e5edf1;
+}
+.statement-list code {
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #102c43;
+  color: #aef2d4;
+  overflow-wrap: anywhere;
+}
+.code-standards {
+  margin-top: 18px;
+  padding: 15px 18px;
+  border-radius: 10px;
+  background: #fff7d5;
+}
+.code-standards ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: #665b39;
+  line-height: 1.8;
+}
 .checklist label {
   display: block;
   padding: 11px;
@@ -283,6 +331,10 @@
   }
   .storyboard {
     grid-template-columns: 1fr;
+  }
+  .statement-list > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
   }
   .storyboard > span,
   .storyboard > h4 {
