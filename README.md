@@ -39,6 +39,25 @@ npm install
 npm run dev
 ```
 
+第一集 Manim 视频：
+
+```bash
+# macOS
+brew install py3cairo ffmpeg pango
+pip install manim
+bash scripts/render_episode_01.sh
+```
+
+Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒时间轴。
+视频默认输出到 `media/videos/episode_01/720p24/microduck_episode_01.mp4`。
+
+也可以使用官方 Manim Docker 镜像：
+
+```bash
+docker run --rm -v "$PWD:/manim" manimcommunity/manim:v0.19.0 \
+  manim -c manim/manim.cfg manim/episode_01.py EpisodeOne
+```
+
 ## 完整目录
 
 ```text

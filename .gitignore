@@ -12,3 +12,4 @@ models/*.zip
 models/*.pt
 models/checkpoints/
 logs/
+media/
