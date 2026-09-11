@@ -1,1 +1,107 @@
-:root{font-family:Inter,"PingFang SC",system-ui,sans-serif;color:#16334b;background:#f4f8fa}*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:220px 1fr}.app>aside{background:#102c43;color:white;padding:24px 14px;display:flex;flex-direction:column;gap:7px}.brand{font-size:24px;font-weight:900;color:#ffd13d}.brand span{display:block;color:white;font-size:16px}.app>aside>p{font-size:12px;color:#a9c2d3;margin:0 0 18px}.app>aside button{background:transparent;border:0;color:#bcd0dc;text-align:left;padding:11px;border-radius:10px;cursor:pointer}.app>aside button b,.app>aside button small{display:block}.app>aside button small{margin-top:3px}.app>aside button.active{background:#ffd13d;color:#17324d}main{padding:22px 28px;min-width:0}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.eyebrow,.intro>span{font-size:12px;letter-spacing:.13em;color:#247a88;font-weight:800}h1{font-size:32px;margin:4px 0}h2{font-size:28px;margin:8px 0}.coach,button{border:0;border-radius:9px;padding:11px 15px;background:#173f5f;color:white;cursor:pointer}.hero{display:grid;grid-template-columns:1fr 1.25fr;gap:24px;align-items:center}.hero>div:first-child{padding:24px}.hero h2{font-size:40px}.hero p,.intro p{line-height:1.7;color:#587080}.pill{background:#d9f7e6;color:#137249;padding:6px 10px;border-radius:20px}.hero canvas,.lesson canvas{width:100%;border-radius:18px;box-shadow:0 12px 40px #17324d26}.roadmap{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.roadmap article{background:white;padding:14px;border-radius:12px;display:grid;gap:4px}.roadmap i{font-style:normal;background:#ffd13d;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800}.roadmap small{color:#69808e}.lesson{max-width:1400px;margin:auto}.intro{margin-bottom:15px}.two{display:grid;grid-template-columns:minmax(500px,1.5fr) minmax(280px,.7fr);gap:18px;align-items:start}.editor,.train-panel,.sliders,.info{background:white;padding:18px;border-radius:14px;box-shadow:0 5px 22px #17324d14}.editor textarea{width:100%;height:170px;background:#132a3d;color:#9df0c9;border:0;border-radius:9px;padding:14px;font:16px/1.7 monospace}.editor button,.train-panel button,.sliders button{width:100%;margin-top:10px}.action-buttons{display:flex;gap:10px;margin-top:15px}.info{margin-top:15px}.info dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px}.info dt{font-weight:800}.info dd{margin:0;color:#69808e}.train-panel svg{width:100%;background:#eef8f4;border-radius:8px}.sliders label{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:18px}.sliders input{grid-column:1/-1;width:100%}.upgrade{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:14px}.upgrade article{background:white;padding:24px;border-radius:14px;min-height:140px}.upgrade span{font-size:28px}.ai{position:fixed;right:25px;bottom:25px;width:330px;background:#f5f0ff;border:1px solid #cbb7f4;border-radius:16px;padding:20px;box-shadow:0 16px 50px #1d174640}.ai>button{position:absolute;right:8px;top:8px;background:transparent;color:#445;padding:5px 10px}.ai>span{color:#6842c2;font-weight:800}.ai p{color:#68717c}@media(max-width:900px){.app{display:block}.app>aside{position:sticky;top:0;z-index:5;flex-direction:row;overflow:auto;padding:10px}.brand{font-size:18px;min-width:150px}.app>aside>p,.app>aside button small{display:none}.app>aside button{white-space:nowrap}.hero,.two{grid-template-columns:1fr}.roadmap{grid-template-columns:repeat(5,170px);overflow:auto}main{padding:18px}.hero h2{font-size:30px}}@media(max-width:560px){header{align-items:flex-start;gap:10px}h1{font-size:25px}.coach{font-size:12px}.upgrade{grid-template-columns:1fr}.upgrade>span{transform:rotate(90deg);justify-self:center}.action-buttons{display:grid}.ai{left:12px;right:12px;bottom:12px;width:auto}}
+:root {
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: #16334b;
+  background: #f4f8fa;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+textarea {
+  font: inherit;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 15px;
+  background: #173f5f;
+  color: white;
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #ffd333;
+  outline-offset: 2px;
+}
+.football-app {
+  min-height: 100vh;
+}
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px max(24px, calc((100vw - 1500px) / 2));
+  color: white;
+  background: #102c43f2;
+  border-bottom: 1px solid #ffffff1c;
+  backdrop-filter: blur(14px);
+}
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.site-brand b,
+.site-brand small {
+  display: block;
+}
+.site-brand b {
+  font-size: 17px;
+}
+.site-brand small {
+  margin-top: 2px;
+  color: #abc8d7;
+  font-size: 11px;
+}
+.duck-mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px 12px 12px 4px;
+  background: #ffd333;
+  color: #17324d;
+  font-weight: 950;
+}
+.course-meta {
+  display: flex;
+  gap: 8px;
+}
+.course-meta span {
+  padding: 6px 10px;
+  border: 1px solid #ffffff24;
+  border-radius: 20px;
+  color: #d4e7ef;
+  font-size: 11px;
+}
+main {
+  padding: 24px;
+}
+footer {
+  padding: 30px 20px 45px;
+  color: #718693;
+  text-align: center;
+  font-size: 12px;
+}
+@media (max-width: 650px) {
+  .site-header {
+    padding: 10px 14px;
+  }
+  .course-meta span:not(:first-child) {
+    display: none;
+  }
+  main {
+    padding: 12px;
+  }
+}
