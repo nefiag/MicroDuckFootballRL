@@ -409,14 +409,6 @@ export function FootballCourse() {
             ))}
           </div>
         </div>
-        <FootballAnimation
-          episode={selected}
-          tick={tick}
-          reward={reward}
-          playing={playing}
-          action={activeSync[1]}
-          effect={activeSync[2]}
-        />
       </div>
 
       <nav className="episode-tabs" aria-label="课程选集">
@@ -443,6 +435,46 @@ export function FootballCourse() {
         <button onClick={() => setPlaying((value) => !value)}>
           {playing ? "❚❚ 暂停动画" : "▶ 播放动画"}
         </button>
+      </div>
+
+      <div className="sync-workbench">
+        <FootballAnimation
+          episode={selected}
+          tick={tick}
+          reward={reward}
+          playing={playing}
+          action={activeSync[1]}
+          effect={activeSync[2]}
+        />
+        <section className="sync-code-panel">
+          <header>
+            <div>
+              <small>LIVE CODE</small>
+              <b>动作对应代码</b>
+            </div>
+            <button onClick={() => navigator.clipboard?.writeText(episode.code)}>
+              复制
+            </button>
+          </header>
+          <pre>
+            <code className="synced-code" aria-label="同步执行代码">
+              {episode.code.split("\n").map((line, index) => (
+                <span
+                  className={index === activeSync[0] ? "executing" : ""}
+                  key={`${index}-${line}`}
+                >
+                  <i>{index + 1}</i>
+                  <b>{line || " "}</b>
+                  {index === activeSync[0] && <em>正在执行</em>}
+                </span>
+              ))}
+            </code>
+          </pre>
+          <div className="execution-note" aria-live="polite">
+            <b>当前动作：{activeSync[1]}</b>
+            <span>{activeSync[2]}</span>
+          </div>
+        </section>
       </div>
 
       <div className="course-grid">
@@ -472,31 +504,6 @@ export function FootballCourse() {
               </small>
             </div>
           ))}
-        </article>
-        <article className="course-card practice">
-          <span>实操代码</span>
-          <h4>本集实验</h4>
-          <pre>
-            <code className="synced-code" aria-label="同步执行代码">
-              {episode.code.split("\n").map((line, index) => (
-                <span
-                  className={index === activeSync[0] ? "executing" : ""}
-                  key={`${index}-${line}`}
-                >
-                  <i>{index + 1}</i>
-                  <b>{line || " "}</b>
-                  {index === activeSync[0] && <em>正在执行</em>}
-                </span>
-              ))}
-            </code>
-          </pre>
-          <div className="execution-note" aria-live="polite">
-            <b>当前动作：{activeSync[1]}</b>
-            <span>{activeSync[2]}</span>
-          </div>
-          <button onClick={() => navigator.clipboard?.writeText(episode.code)}>
-            复制代码
-          </button>
         </article>
         <article className="course-card code-guide">
           <span>代码精讲</span>

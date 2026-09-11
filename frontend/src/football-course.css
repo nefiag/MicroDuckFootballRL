@@ -3,15 +3,14 @@
   margin: auto;
 }
 .football-hero {
-  display: grid;
-  grid-template-columns: minmax(420px, 0.9fr) minmax(560px, 1.2fr);
-  gap: 24px;
-  align-items: center;
   padding: 28px;
   border-radius: 24px;
   background: linear-gradient(135deg, #102c43, #174e68);
   color: white;
   overflow: hidden;
+}
+.football-hero > div {
+  max-width: 1050px;
 }
 .football-hero > div:first-child > span,
 .course-card > span,
@@ -168,6 +167,66 @@
   margin: 0;
   color: #617888;
 }
+.sync-workbench {
+  display: grid;
+  grid-template-columns: minmax(520px, 1.15fr) minmax(430px, 0.85fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #102c43;
+  box-shadow: 0 14px 38px #17324d26;
+}
+.sync-workbench .football-animation,
+.sync-workbench .football-animation svg {
+  height: 100%;
+}
+.sync-workbench .football-animation svg {
+  object-fit: cover;
+}
+.sync-code-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 13px;
+  border: 1px solid #ffffff1c;
+  border-radius: 13px;
+  color: #aef2d4;
+  background: #0a2133;
+}
+.sync-code-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+.sync-code-panel > header div {
+  display: grid;
+}
+.sync-code-panel > header small {
+  color: #52dba8;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.sync-code-panel > header b {
+  color: white;
+}
+.sync-code-panel > header button {
+  padding: 6px 10px;
+  color: #17324d;
+  background: #ffd333;
+  font-size: 11px;
+  font-weight: 800;
+}
+.sync-code-panel pre {
+  flex: 1;
+  min-height: 230px;
+  margin: 0;
+  overflow: auto;
+  font: 13px/1.7 ui-monospace, monospace;
+}
 .course-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -223,18 +282,6 @@
 .storyboard small {
   color: #9a6b00;
 }
-.practice pre {
-  margin: 0;
-  background: #102c43;
-  color: #aef2d4;
-  border-radius: 12px;
-  padding: 16px;
-  min-height: 180px;
-  overflow: auto;
-  font:
-    13px/1.7 ui-monospace,
-    monospace;
-}
 .synced-code {
   display: block;
 }
@@ -287,9 +334,6 @@
 .execution-note span {
   color: #526d61;
   text-align: right;
-}
-.practice button {
-  margin-top: 10px;
 }
 .code-guide {
   grid-column: 1/-1;
@@ -390,11 +434,14 @@
   }
 }
 @media (max-width: 1050px) {
-  .football-hero {
-    grid-template-columns: 1fr;
-  }
   .course-grid {
     grid-template-columns: 1fr;
+  }
+  .sync-workbench {
+    grid-template-columns: 1fr;
+  }
+  .sync-workbench .football-animation svg {
+    height: auto;
   }
   .episode-tabs {
     grid-template-columns: repeat(8, 130px);
