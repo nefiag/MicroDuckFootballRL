@@ -86,7 +86,7 @@ MicroDuckFootballRL/
 
 ## 8 集课程
 
-1. [让鸭子学会踢足球：强化学习与项目规划](course/episodes/01-让鸭子学会踢足球.md)
+1. [让鸭子学会踢足球：强化学习与项目规划](course/episodes/01-让鸭子学会踢足球.md) · [10 分钟动画分镜](course/episodes/01-animation-storyboard.md)
 2. Gymnasium 足球场、状态空间和动作空间
 3. 奖励函数与奖励塑形
 4. Stable-Baselines3 PPO 训练
