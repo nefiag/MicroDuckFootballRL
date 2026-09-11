@@ -452,7 +452,9 @@ export function FootballCourse() {
               <small>LIVE CODE</small>
               <b>动作对应代码</b>
             </div>
-            <button onClick={() => navigator.clipboard?.writeText(episode.code)}>
+            <button
+              onClick={() => navigator.clipboard?.writeText(episode.code)}
+            >
               复制
             </button>
           </header>

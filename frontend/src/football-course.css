@@ -225,7 +225,9 @@
   min-height: 230px;
   margin: 0;
   overflow: auto;
-  font: 13px/1.7 ui-monospace, monospace;
+  font:
+    13px/1.7 ui-monospace,
+    monospace;
 }
 .course-grid {
   display: grid;
