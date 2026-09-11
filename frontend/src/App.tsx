@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DuckWorld, type Frame } from "./components/DuckWorld";
 import { MujocoWorld, type MujocoFrame } from "./components/MujocoWorld";
+import { FootballCourse } from "./components/FootballCourse";
 import "./mujoco.css";
 const stages = [
   ["overview", "总览", "先看路线"],
+  ["football", "足球 AI 实战", "8 集 Sim2Real 课程"],
   ["motion", "1. 看得见的动作", "让小鸭动起来"],
   ["environment", "2. 自己写环境", "定义状态与动作"],
   ["training", "3. 强化学习训练", "让小鸭学会踢球"],
@@ -286,6 +288,7 @@ export function App() {
             </div>
           </section>
         )}
+        {page === "football" && <FootballCourse />}
         {page === "motion" && (
           <Lesson
             title="让动作先发生"
@@ -413,7 +416,36 @@ export function App() {
             title="启动 MuJoCo Microduck 仿真训练"
             text="左右髋关节由电机力矩控制，接触、摩擦和重力由 MuJoCo 计算；目标是向前行走且不跌倒。"
           >
-            <div className="mujoco-lab"><MujocoWorld frame={mujocoFrame}/><aside><span className="pill">真实 MuJoCo 物理</span><h3>五动作关节控制</h3>{["0 双腿放松","1 左腿摆动","2 右腿摆动","3 迈步 A","4 迈步 B"].map(x=><code key={x}>{x}</code>)}<button disabled={mujocoRunning} onClick={startMujoco}>{mujocoRunning?"MuJoCo 运行中…":"▶ 启动 30 回合 MuJoCo 训练"}</button><p className={`mujoco-status ${mujocoStatus.includes("失败") ? "error" : ""}`}>{mujocoStatus}</p><p>已完成 {mujocoHistory.length} 回合。奖励综合前进速度、存活、能耗、跌倒和目标。</p></aside></div>
+            <div className="mujoco-lab">
+              <MujocoWorld frame={mujocoFrame} />
+              <aside>
+                <span className="pill">真实 MuJoCo 物理</span>
+                <h3>五动作关节控制</h3>
+                {[
+                  "0 双腿放松",
+                  "1 左腿摆动",
+                  "2 右腿摆动",
+                  "3 迈步 A",
+                  "4 迈步 B",
+                ].map((x) => (
+                  <code key={x}>{x}</code>
+                ))}
+                <button disabled={mujocoRunning} onClick={startMujoco}>
+                  {mujocoRunning
+                    ? "MuJoCo 运行中…"
+                    : "▶ 启动 30 回合 MuJoCo 训练"}
+                </button>
+                <p
+                  className={`mujoco-status ${mujocoStatus.includes("失败") ? "error" : ""}`}
+                >
+                  {mujocoStatus}
+                </p>
+                <p>
+                  已完成 {mujocoHistory.length}{" "}
+                  回合。奖励综合前进速度、存活、能耗、跌倒和目标。
+                </p>
+              </aside>
+            </div>
             <div className="upgrade">
               <article>
                 <b>现在 · Canvas 2D</b>

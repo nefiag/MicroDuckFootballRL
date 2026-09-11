@@ -2,6 +2,16 @@
 
 兴趣导向的 Microduck 仿真训练入门课程。学习顺序是“先看到动作 → 修改动作 → 自己定义环境 → 强化学习 → 理解物理 → 升级复杂仿真”，面向没有强化学习基础的学习者。
 
+## 足球 AI 与 Sim2Real 实战课
+
+网站内置完整的 8 集《MicroDuck 足球 AI 实战：从强化学习到 Sim2Real》，每集包含可播放动画、8–12 分钟视频脚本、动画分镜、实操代码和学习检查。从足球环境、奖励函数、PPO 和课程学习，逐步进入 Sim2Real、域随机化与真实机器人部署，最后展示 MicroDuck 射门与多智能体对抗路线。
+
+可运行的零依赖教学环境位于 `examples/microduck_football_env.py`：
+
+```bash
+python3 examples/microduck_football_env.py
+```
+
 ## 五阶段
 
 1. 看得见的动作：直接播放向右跑、踢球和助跑动画。

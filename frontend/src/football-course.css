@@ -1,0 +1,291 @@
+.football-course {
+  max-width: 1500px;
+  margin: auto;
+}
+.football-hero {
+  display: grid;
+  grid-template-columns: minmax(420px, 0.9fr) minmax(560px, 1.2fr);
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #102c43, #174e68);
+  color: white;
+  overflow: hidden;
+}
+.football-hero > div:first-child > span,
+.course-card > span,
+.prompt-pack span,
+.episode-heading span {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 900;
+  color: #36d49a;
+}
+.football-hero h2 {
+  font-size: 42px;
+  line-height: 1.08;
+  margin: 10px 0;
+}
+.football-hero p {
+  color: #d0e4ed;
+  line-height: 1.7;
+}
+.level-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 18px;
+}
+.level-strip b {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  background: #ffffff16;
+  border: 1px solid #ffffff22;
+  border-radius: 20px;
+  font-size: 11px;
+}
+.level-strip i {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #ffd333;
+  color: #17324d;
+  font-style: normal;
+}
+.football-animation svg {
+  display: block;
+  width: 100%;
+  border-radius: 22px;
+  box-shadow: 0 16px 45px #06121c66;
+}
+.football-animation text {
+  font: 800 17px system-ui;
+  fill: #16334b;
+}
+.football-animation .hud {
+  fill: white;
+  font-size: 13px;
+}
+.football-animation .terrain {
+  font-size: 20px;
+}
+.football-animation .reward {
+  fill: #0a9d61;
+  font-size: 30px;
+}
+.football-animation .bad {
+  fill: #e64c45;
+}
+.football-animation .goal-text {
+  fill: #fff;
+  font-size: 35px;
+}
+.football-animation.playing .football-duck {
+  animation: duck-bob 0.7s ease-in-out infinite alternate;
+}
+.football-animation.playing .football-ball {
+  animation: ball-spin 0.6s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.episode-tabs {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin: 16px 0;
+  overflow: auto;
+}
+.episode-tabs button {
+  min-width: 115px;
+  background: white;
+  color: #38536a;
+  border: 2px solid transparent;
+  padding: 10px;
+}
+.episode-tabs button small,
+.episode-tabs button b {
+  display: block;
+}
+.episode-tabs button small {
+  font-size: 10px;
+  color: #7a909c;
+  margin-bottom: 3px;
+}
+.episode-tabs button.active {
+  border-color: #f4b928;
+  background: #fff9df;
+  color: #17324d;
+}
+.episode-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+.episode-heading h3 {
+  font-size: 28px;
+  margin: 5px 0;
+}
+.episode-heading p {
+  margin: 0;
+  color: #617888;
+}
+.course-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.course-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px #17324d0d;
+}
+.course-card h4 {
+  font-size: 21px;
+  margin: 6px 0 14px;
+}
+.narration p {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 9px;
+  line-height: 1.65;
+  color: #536b7a;
+}
+.narration i {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e0f8ee;
+  color: #15845c;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+}
+.storyboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.storyboard > span,
+.storyboard > h4 {
+  grid-column: 1/-1;
+}
+.storyboard > div {
+  padding: 12px;
+  background: #f4f8fa;
+  border-radius: 10px;
+}
+.storyboard p {
+  margin: 5px 0;
+  color: #536b7a;
+}
+.storyboard small {
+  color: #9a6b00;
+}
+.practice pre {
+  margin: 0;
+  background: #102c43;
+  color: #aef2d4;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 180px;
+  overflow: auto;
+  font:
+    13px/1.7 ui-monospace,
+    monospace;
+}
+.practice button {
+  margin-top: 10px;
+}
+.checklist label {
+  display: block;
+  padding: 11px;
+  margin: 7px 0;
+  background: #f4f8fa;
+  border-radius: 9px;
+  color: #536b7a;
+}
+.checklist input {
+  margin-right: 9px;
+  accent-color: #16a36e;
+}
+.prompt-pack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 16px;
+  padding: 22px;
+  border-radius: 16px;
+  background: #fff3bd;
+}
+.prompt-pack h3 {
+  margin: 5px 0;
+}
+.prompt-pack p {
+  margin: 0;
+  color: #665b39;
+  line-height: 1.6;
+}
+.prompt-pack button {
+  white-space: nowrap;
+}
+.football-duck,
+.football-ball {
+  transition: transform 0.8s ease;
+}
+.paused * {
+  animation-play-state: paused !important;
+}
+@keyframes duck-bob {
+  to {
+    translate: 0 -7px;
+  }
+}
+@keyframes ball-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (max-width: 1050px) {
+  .football-hero {
+    grid-template-columns: 1fr;
+  }
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+  .episode-tabs {
+    grid-template-columns: repeat(8, 130px);
+  }
+}
+@media (max-width: 650px) {
+  .football-hero {
+    padding: 18px;
+  }
+  .football-hero h2 {
+    font-size: 31px;
+  }
+  .episode-heading,
+  .prompt-pack {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .storyboard {
+    grid-template-columns: 1fr;
+  }
+  .storyboard > span,
+  .storyboard > h4 {
+    grid-column: auto;
+  }
+}
