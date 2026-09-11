@@ -45,11 +45,24 @@ npm run dev
 # macOS
 brew install py3cairo ffmpeg pango
 pip install manim
-bash scripts/render_episode_01.sh
+bash scripts/render_episode_01_with_voice.sh
 ```
 
-Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒时间轴。
-视频默认输出到 `media/videos/episode_01/720p24/microduck_episode_01.mp4`。
+Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒时间轴。带配音脚本会调用 macOS `say` 生成中文旁白，按 10 段时间码校准，再用 FFmpeg 合成音轨。
+
+输出文件：
+
+```text
+media/videos/episode_01/720p24/microduck_episode_01.mp4
+media/video/microduck_episode_01_voiced.mp4
+```
+
+更换中文音色或初始语速：
+
+```bash
+say -v '?'
+bash scripts/render_episode_01_with_voice.sh --voice Tingting --rate 210
+```
 
 也可以使用官方 Manim Docker 镜像：
 
