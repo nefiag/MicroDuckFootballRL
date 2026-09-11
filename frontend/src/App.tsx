@@ -7,8 +7,8 @@ export function App() {
         <div className="site-brand">
           <span className="duck-mark">MD</span>
           <div>
-            <b>MicroDuck Football AI</b>
-            <small>从强化学习到 Sim2Real</small>
+            <b>MicroDuck 足球强化学习课程</b>
+            <small>Football RL · 从仿真到真实机器人</small>
           </div>
         </div>
         <div className="course-meta">

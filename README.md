@@ -1,29 +1,18 @@
-# MicroduckTraining
+# MicroDuck 足球强化学习课程
 
-专注于《MicroDuck 足球 AI 实战：从强化学习到 Sim2Real》的单课程项目，面向没有强化学习基础的学习者。
+独立的足球 AI 教学项目，从二维足球环境和奖励函数出发，逐步学习 PPO、课程学习、Sim2Real、域随机化与真实机器人安全部署。
 
-## 足球 AI 与 Sim2Real 实战课
+## 课程内容
 
-网站内置完整的 8 集《MicroDuck 足球 AI 实战：从强化学习到 Sim2Real》，每集包含可播放动画、8–12 分钟视频脚本、动画分镜、实操代码和学习检查。从足球环境、奖励函数、PPO 和课程学习，逐步进入 Sim2Real、域随机化与真实机器人部署，最后展示 MicroDuck 射门与多智能体对抗路线。
+- 8 集、约 80 分钟的课程路线
+- MicroDuck 足球动作动画
+- 动画与代码逐行同步执行
+- 视频旁白、动画分镜和 AI 视频提示词
+- 代码结构、语句含义与代码规范
+- 可运行的零依赖二维足球环境
+- 从 Mac mini M4 训练到真实机器人的迁移路线
 
-可运行的零依赖教学环境位于 `examples/microduck_football_env.py`：
-
-```bash
-python3 examples/microduck_football_env.py
-```
-
-## 启动
-
-后端：
-
-```bash
-cd backend
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/uvicorn app.main:app --reload --port 8001
-```
-
-前端：
+## 本地运行
 
 ```bash
 cd frontend
@@ -31,10 +20,29 @@ npm install
 npm run dev
 ```
 
-Vite 开发服务器会把 `/api` 和 `/ws` 代理至 `localhost:8001`。生产环境可设置 `VITE_API_URL`。
+生产构建：
 
-## 线上环境
+```bash
+cd frontend
+npm run build
+npm run preview
+```
 
-- 前端：https://microduck-training.vercel.app
-- 后端：https://microduck-training-api.onrender.com
-- GitHub：https://github.com/nefiag/MicroduckTraining
+运行足球环境示例：
+
+```bash
+python3 examples/microduck_football_env.py
+```
+
+## 项目结构
+
+```text
+MicroDuckFootballRL/
+├── examples/
+│   └── microduck_football_env.py
+└── frontend/
+    ├── src/components/FootballCourse.tsx
+    ├── src/football-course.css
+    ├── src/App.tsx
+    └── vercel.json
+```
