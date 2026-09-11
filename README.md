@@ -59,7 +59,11 @@ Manim 工程位于 `manim/episode_01.py`，包含 18 个场景和精确 600 秒�
 ```text
 media/videos/episode_01/720p24/microduck_episode_01.mp4
 media/video/microduck_episode_01_voiced.mp4
+media/video/microduck_episode_01_russian.mp4
+media/video/microduck_episode_01_spanish.mp4
 ```
+
+旁白生成器会按中文、俄语和西班牙语音色修正 MicroDuck 的品牌读音，使首音读作 “Mai”。视频母版左上角包含“制作 by 黄旭”水印。
 
 macOS 可更换中文音色或初始语速；Linux 的 `--voice` 可传入 Edge TTS 音色（默认为 `zh-CN-XiaoxiaoNeural`）：
 

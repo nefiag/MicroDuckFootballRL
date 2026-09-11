@@ -54,6 +54,13 @@ class EpisodeOne(Scene):
 
     def construct(self) -> None:
         self.camera.background_color = NAVY
+        watermark = Text(
+            "制作 by 黄旭",
+            font=FONT,
+            font_size=18,
+            color=WHITE,
+        ).set_opacity(0.72).to_corner(UL, buff=0.25).set_z_index(100)
+        self.add(watermark)
         for spec in SCENES:
             slide, focus = self.build_slide(spec)
             self.play(FadeIn(slide, shift=UP * 0.12), run_time=1.0)
@@ -67,7 +74,7 @@ class EpisodeOne(Scene):
             font=FONT,
             font_size=20,
             color=GREEN,
-        ).to_corner(UL, buff=0.35)
+        ).to_corner(UL, buff=0.35).shift(DOWN * 0.42)
         title = Text(spec.title, font=FONT, font_size=38, weight=BOLD, color=WHITE)
         title.to_edge(UP, buff=0.62)
         visual = self.visual_for(spec.visual).scale_to_fit_height(3.8).move_to(UP * 0.15)

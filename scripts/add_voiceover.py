@@ -88,6 +88,17 @@ def atempo_filter(factor: float) -> str:
     return ",".join(f"atempo={value:.6f}" for value in factors)
 
 
+def apply_brand_pronunciation(text: str, voice: str) -> str:
+    """让各语言 TTS 把 MicroDuck 的首音读作英文 Mai。"""
+    replacements = {
+        "zh": "迈克罗达克",
+        "ru": "Майкро Дак",
+        "es": "Maicro Dak",
+    }
+    language = voice.split("-", 1)[0].lower()
+    return text.replace("MicroDuck", replacements.get(language, "Mai-cro Duck"))
+
+
 def synthesize_track(script: Path, voice: str, rate: int, workspace: Path) -> Path:
     say = shutil.which("say")
     ffmpeg = ffmpeg_executable()
@@ -101,6 +112,7 @@ def synthesize_track(script: Path, voice: str, rate: int, workspace: Path) -> Pa
             import edge_tts
 
             edge_voice = voice if voice != "Tingting" else "zh-CN-XiaoxiaoNeural"
+            narration = apply_brand_pronunciation(narration, edge_voice)
             edge_tts.Communicate(narration, edge_voice).save_sync(str(raw_audio))
         source_duration = audio_duration(raw_audio)
         speed_factor = source_duration / target_duration
